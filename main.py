@@ -2,6 +2,9 @@
 # Михайлов Дмитрий Андреевич
 # Группа P3206
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 FILE_IN = "iofiles/input.txt"
 
 def derivative(n, x, f, h=0.00000001):
@@ -89,3 +92,23 @@ def secant_method(a, b, f, e, maxitr=100):
         itr += 1
 
     return x1, f(x1), itr, log
+
+def plot(x, y):
+    """ Отрисовать график по заданным x и y """
+    # Настраиваем всплывающее окно
+    # plt.rcParams['toolbar'] = 'None'
+    plt.gcf().canvas.set_window_title("График функции")
+    # Настриваем оси
+    ax = plt.gca()
+    ax.spines['left'].set_position('zero')
+    ax.spines['bottom'].set_position('zero')
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    ax.plot(1, 0, marker=">", ms=5, color='k',
+            transform=ax.get_yaxis_transform(), clip_on=False)
+    ax.plot(0, 1, marker="^", ms=5, color='k',
+            transform=ax.get_xaxis_transform(), clip_on=False)
+
+    # Отрисовываем график
+    plt.plot(x, y)
+    plt.show(block=False)
