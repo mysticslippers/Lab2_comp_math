@@ -37,10 +37,10 @@ def chord_method(a, b, f, e, maxitr=100):
     """ Метод хорд """
     log = [['a', 'b', 'x', 'f(a)', 'f(b)', 'f(x)', '|x - x0|']]
 
-    if f(a) * d(2, a, f) < 0:
+    if f(a) * derivative(2, a, f) < 0:
         x = a
         fix_x = b
-    elif f(b) * d(2, a, f) < 0:
+    elif f(b) * derivative(2, a, f) < 0:
         x = b
         fix_x = a
     else:
