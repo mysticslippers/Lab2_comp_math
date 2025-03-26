@@ -68,3 +68,24 @@ def chord_method(a, b, f, e, maxitr=100):
         itr += 1
 
     return x, f(x), itr, log
+
+def secant_method(a, b, f, e, maxitr=100):
+    """ Метод секущих """
+    log = [['x0', 'f(x)', 'x', 'f(x)', 'x1', 'f(x1)', '|x - x1|']]
+
+    if f(a) * derivative(2, a, f) > 0:
+        x0 = a
+    elif f(b) * derivative(2, a, f) > 0:
+        x0 = b
+    else:
+        return None
+    x1 = x0 + e
+    x = x1 + 2 * e
+
+    itr = 0
+    while abs(x - x1) > e and itr < maxitr:
+        x1, x, x0 = x1 - (x1 - x0) / (f(x1) - f(x0)) * f(x1), x1, x
+        log.append([x0, f(x0), x, f(x), x1, f(x1), abs(x - x1)])
+        itr += 1
+
+    return x1, f(x1), itr, log
