@@ -35,3 +35,11 @@ def get_func(function_num):
     }
 
     return functions.get(function_num, (None, None))
+
+
+def check_interval(a, b, function):
+    """ Проверить корректность отрезка для функции. """
+    if a == b:
+        raise ArithmeticError("Границы интервала не могут быть равны!")
+    if function(a) * function(b) > 0:
+        raise AttributeError("Функция должна менять знак на границах интервала!")
