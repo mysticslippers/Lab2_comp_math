@@ -43,3 +43,39 @@ def check_interval(a, b, function):
         raise ArithmeticError("Границы интервала не могут быть равны!")
     if function(a) * function(b) > 0:
         raise AttributeError("Функция должна менять знак на границах интервала!")
+
+
+def get_data_file():
+    """ Получить данные из файла """
+    with open(FILE_PATH, 'rt') as fin:
+        try:
+            data = {}
+            function_data = get_func(fin.readline().strip())
+            if function_data is None:
+                raise ValueError("Функция не распознана!")
+            x, function = function_data
+            plot(x, function(x))
+            data['function'] = function
+
+            method = fin.readline().strip()
+            if method not in {'1', '2', '3'}:
+                raise ValueError("Метод должен быть 1, 2 или 3!")
+            data["method"] = method
+
+            if method in {'1', '2'}:
+                a, b = map(float, fin.readline().strip().split())
+                check_interval(a, b, function)
+                data['a'], data['b'] = sorted((a, b))
+
+            elif method == '3':
+                data['x0'] = float(fin.readline().strip())
+
+            error = float(fin.readline().strip())
+            if error < 0:
+                raise ArithmeticError("Ошибка должна быть неотрицательной!")
+            data['error'] = error
+
+            return data
+        except (ValueError, ArithmeticError, AttributeError) as e:
+            print(f"Ошибка при получении данных: {e}")
+            return None
