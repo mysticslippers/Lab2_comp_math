@@ -93,3 +93,17 @@ def select_function():
         if function_data is not None:
             return function_data
         print("Выберите функцию из списка.")
+
+
+def select_method():
+    """ Выбор метода решения. """
+    print("\nВыберите метод решения.")
+    print(" 1 - Метод хорд")
+    print(" 2 - Метод секущих")
+    print(" 3 - Метод простой итерации")
+
+    while True:
+        method = input("Метод решения: ")
+        if method in ['1', '2', '3']:
+            return method
+        print("Выберите метод решения из списка.")
