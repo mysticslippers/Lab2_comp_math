@@ -133,3 +133,14 @@ def select_initial_approximation():
             return x0
         except ValueError:
             print("Начальное приближение должно быть числом!")
+
+
+def select_error_tolerance():
+    while True:
+        try:
+            error = float(input("Погрешность вычисления: "))
+            if error <= 0:
+                raise ArithmeticError("Погрешность вычисления должна быть положительным числом!")
+            return error
+        except (ValueError, ArithmeticError) as e:
+            print(e)
