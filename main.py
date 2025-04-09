@@ -7,6 +7,52 @@ import matplotlib.pyplot as plt
 
 FILE_PATH = "iofiles/input.txt"
 
+
+def get_derivative(n, x, f, h=1e-10, cache={}):
+    """ Найти значение производной функции с использованием кэширования """
+    if n <= 0:
+        return None
+    elif (n, x) in cache:
+        return cache[(n, x)]
+    elif n == 1:
+        result = (f(x + h) - f(x)) / h
+    else:
+        result = (get_derivative(n - 1, x + h, f, h, cache) - get_derivative(n - 1, x, f, h, cache)) / h
+
+    cache[(n, x)] = result
+    return result
+
+
+def iteration_method(x0, f, e, maxitr=100):
+    """ Метод простой итерации с оптимизациями """
+    log = [['x0', 'f(x0)', 'x', 'g(x0)', '|x - x0|']]
+
+    def g(g_x):
+        derivative = get_derivative(1, g_x, f)
+        if derivative == 0:
+            return None
+        return g_x + (-1 / derivative) * f(g_x)
+
+    x = g(x0)
+    if x is None:
+        return None
+    log.append([x0, f(x0), x, g(x0), abs(x - x0)])
+
+    itr = 0
+    while abs(x - x0) > e and itr < maxitr:
+        x0, x_new = x, g(x)
+        if x_new is None:
+            return None
+
+        log.append([x0, f(x0), x_new, g(x0), abs(x_new - x0)])
+        if get_derivative(1, x, g) is None or get_derivative(1, x, g) >= 1:
+            return None
+        x = x_new
+        itr += 1
+
+    return x, f(x), itr, log
+
+
 def plot(x, y):
     """Отрисовать график по заданным x и y."""
     plt.gcf().canvas.set_window_title("График функции")
@@ -166,3 +212,68 @@ def get_data_console():
     data['error'] = error
 
     return data
+
+
+def main():
+    print("\t\tЛабораторная работа #2 (19)")
+    print("Численное решение нелинейных уравнений")
+
+    print("\nВзять исходные данные из файла (+) или ввести с клавиатуры (-)?")
+    input_choice = input("Режим ввода: ")
+
+    while input_choice not in ('+', '-'):
+        print("Введите '+' или '-' для выбора способа ввода.")
+        input_choice = input("Режим ввода: ")
+
+    if input_choice == '+':
+        data = get_data_file()
+        if data is None:
+            print("\nПри считывании данных из файла произошла ошибка!")
+            print("Режим ввода переключен на ручной!")
+            data = get_data_console()
+    else:
+        data = get_data_console()
+
+    try:
+        method_switch = {
+            '1': chord_method,
+            '2': secant_method,
+            '3': iteration_method
+        }
+
+        method = method_switch.get(data['method'])
+
+        if method is None:
+            print("Недопустимый метод!")
+            return
+
+        answer = method(data['a'], data['b'], data['function'], data['error'])
+
+        if answer is None:
+            if data['method'] == '2':
+                print("Знаки функций и вторых производных не равны ни в 'a', ни в 'b'!")
+            elif data['method'] == '3':
+                print("Не выполняется условие сходимости!")
+            raise ValueError
+
+        print(f"\nКорень уравнения: {answer[0]}")
+        print(f"Значение функции в корне: {answer[1]}")
+        print(f"Число итераций: {answer[2]}")
+
+        log = input("\nВывести таблицу трассировки? (+ / -)\nТаблица трассировки: ")
+
+        while log not in ('+', '-'):
+            print("Введите '+' или '-' для выбора, выводить ли таблицу трассировки.")
+            log = input("Таблица трассировки: ")
+
+        if log == '+':
+            for row in answer[3]:
+                print(' '.join(f'{value:12.3f}' for value in row))
+
+    except ValueError:
+        print("Произошла ошибка при вычислении корня уравнения. Проверьте входные данные!")
+
+    input("\n\nНажмите Enter, чтобы выйти.")
+
+
+main()
