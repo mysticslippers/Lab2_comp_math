@@ -107,3 +107,20 @@ def select_method():
         if method in ['1', '2', '3']:
             return method
         print("Выберите метод решения из списка.")
+
+
+def select_interval(function):
+    """ Выбор границ интервала. """
+    print("\nВыберите границы интервала.")
+    while True:
+        try:
+            a, b = map(float, input("Границы интервала: ").split())
+            if a == b:
+                raise ArithmeticError("Границы интервала не могут быть равны.")
+            if function(a) * function(b > 0):
+                raise AttributeError("Функция должна менять знак на границах интервала.")
+            return sorted((a, b))
+        except ValueError:
+            print("Границы интервала должны быть числами, введенными через пробел.")
+        except (ArithmeticError, AttributeError) as e:
+            print(e)
