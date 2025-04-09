@@ -102,6 +102,47 @@ def chord_method(a, b, f, e, maxitr=100):
     return x, f(x), itr, log
 
 
+def secant_method(a, b, f, e, maxitr=100):
+    """Метод секущих для нахождения корня функции."""
+    log = [['x0', 'f(x0)', 'x', 'f(x)', 'x1', 'f(x1)', '|x - x1|']]
+
+    f_a = f(a)
+    f_b = f(b)
+
+    if f_a * get_derivative(2, a, f) > 0:
+        x0 = a
+        f_x0 = f_a
+    elif f_b * get_derivative(2, a, f) > 0:
+        x0 = b
+        f_x0 = f_b
+    else:
+        return None
+
+    x1 = x0 + e
+    f_x1 = f(x1)
+    x = x1 + 2 * e
+    itr = 0
+
+    while abs(x - x1) > e and itr < maxitr:
+        if f_x1 == f_x0:
+            raise ValueError("Значения функции равны, возможно, необходимо пересмотреть начальные точки!")
+
+        x_new = x1 - (x1 - x0) * f_x1 / (f_x1 - f_x0)
+        f_x_new = f(x_new)
+
+        log.append([x0, f_x0, x, f(x), x1, f_x1, abs(x_new - x1)])
+
+        x0, f_x0 = x1, f_x1
+        x1, f_x1 = x_new, f_x_new
+        x = x1
+        itr += 1
+
+    if itr == maxitr:
+        raise Exception("Достигнуто максимальное количество итераций без сходимости!")
+
+    return x1, f_x1, itr, log
+
+
 def plot(x, y):
     """Отрисовать график по заданным x и y."""
     plt.gcf().canvas.set_window_title("График функции")
