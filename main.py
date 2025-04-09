@@ -144,3 +144,25 @@ def select_error_tolerance():
             return error
         except (ValueError, ArithmeticError) as e:
             print(e)
+
+
+def get_data_console():
+    data = {}
+    function = select_function()
+    data['function'] = function
+
+    method = select_method()
+    data['method'] = method
+
+    if method in ['1', '2']:
+        a, b = select_interval(function)
+        data['a'] = a
+        data['b'] = b
+    elif method == '3':
+        x0 = select_initial_approximation()
+        data['x0'] = x0
+
+    error = select_error_tolerance()
+    data['error'] = error
+
+    return data
