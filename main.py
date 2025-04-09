@@ -121,6 +121,15 @@ def select_interval(function):
                 raise AttributeError("Функция должна менять знак на границах интервала.")
             return sorted((a, b))
         except ValueError:
-            print("Границы интервала должны быть числами, введенными через пробел.")
+            print("Границы интервала должны быть числами, введенными через пробел!")
         except (ArithmeticError, AttributeError) as e:
             print(e)
+
+
+def select_initial_approximation():
+    while True:
+        try:
+            x0 = float(input("Начальное приближение: "))
+            return x0
+        except ValueError:
+            print("Начальное приближение должно быть числом!")
