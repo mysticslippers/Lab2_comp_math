@@ -53,6 +53,55 @@ def iteration_method(x0, f, e, maxitr=100):
     return x, f(x), itr, log
 
 
+def chord_method(a, b, f, e, maxitr=100):
+    """ Метод хорд с оптимизациями """
+    log = [['a', 'b', 'x', 'f(a)', 'f(b)', 'f(x)', '|x - x0|']]
+
+    f_a = f(a)
+    f_b = f(b)
+
+    if f_a * get_derivative(2, a, f) < 0:
+        x = a
+        fix_x = b
+    elif f_b * get_derivative(2, a, f) < 0:
+        x = b
+        fix_x = a
+    else:
+        x = a - (b - a) / (f_b - f_a) * f_a
+        fix_x = None
+
+    x0 = x + 2 * e
+    log.append([a, b, x, f_a, f_b, f(x), abs(x - x0)])
+
+    itr = 0
+    while abs(x - x0) > e and itr < maxitr:
+        f_x = f(x)
+        if fix_x is None:
+            if f_a * f_x < 0:
+                b = x
+                f_b = f_x
+            else:
+                a = x
+                f_a = f_x
+        else:
+            if fix_x == a:
+                x = x - (fix_x - x) / (f(fix_x) - f_x) * f_x
+                f_x = f(x)
+            else:
+                x = x - (x - fix_x) / (f_x - f(fix_x)) * f_x
+                f_x = f(x)
+
+        log.append([a, b, x, f_a, f_b, f_x, abs(x - x0)])
+
+        x0 = x
+        itr += 1
+
+    if itr == maxitr:
+        raise Exception("Достигнуто максимальное количество итераций без сходимости!")
+
+    return x, f(x), itr, log
+
+
 def plot(x, y):
     """Отрисовать график по заданным x и y."""
     plt.gcf().canvas.set_window_title("График функции")
