@@ -79,3 +79,17 @@ def get_data_file():
         except (ValueError, ArithmeticError, AttributeError) as e:
             print(f"Ошибка при получении данных: {e}")
             return None
+
+
+def select_function():
+    """ Выбор функции из списка. """
+    print("\nВыберите функцию.")
+    print(" 1 - x³ - 2.92x² + 4.435x + 0.791")
+    print(" 2 - x³ - x + 4")
+    print(" 3 - sin(x) + 0.1")
+
+    while True:
+        function_data = get_func(input("Функция: "))
+        if function_data is not None:
+            return function_data
+        print("Выберите функцию из списка.")
