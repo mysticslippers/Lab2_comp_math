@@ -8,139 +8,39 @@ import matplotlib.pyplot as plt
 FILE_PATH = "iofiles/input.txt"
 
 
-def get_derivative(n, x, f, h=1e-10, cache={}):
-    """ Найти значение производной функции с использованием кэширования """
+def get_derivative(n, x, f, h=1e-10):
+    """ Найти значение производной функции """
     if n <= 0:
         return None
-    elif (n, x) in cache:
-        return cache[(n, x)]
     elif n == 1:
         result = (f(x + h) - f(x)) / h
     else:
-        result = (get_derivative(n - 1, x + h, f, h, cache) - get_derivative(n - 1, x, f, h, cache)) / h
+        result = (get_derivative(n - 1, x + h, f, h) - get_derivative(n - 1, x, f, h)) / h
 
-    cache[(n, x)] = result
     return result
 
 
 def iteration_method(x0, f, e, maxitr=100):
-    """ Метод простой итерации с оптимизациями """
+    """ Метод простой итерации с оптимизацией """
     log = [['x0', 'f(x0)', 'x', 'g(x0)', '|x - x0|']]
 
     def g(g_x):
-        derivative = get_derivative(1, g_x, f)
-        if derivative == 0:
-            return None
-        return g_x + (-1 / derivative) * f(g_x)
+        return g_x + (-1 / get_derivative(1, g_x, f)) * f(g_x)
 
     x = g(x0)
-    if x is None:
-        return None
     log.append([x0, f(x0), x, g(x0), abs(x - x0)])
 
     itr = 0
     while abs(x - x0) > e and itr < maxitr:
-        x0, x_new = x, g(x)
-        if x_new is None:
+        x0, x_prev = x, x
+        x = g(x_prev)
+        log.append([x0, f(x0), x, g(x_prev), abs(x - x0)])
+        itr += 1
+
+        if get_derivative(1, x, g) >= 1:
             return None
 
-        log.append([x0, f(x0), x_new, g(x0), abs(x_new - x0)])
-        if get_derivative(1, x, g) is None or get_derivative(1, x, g) >= 1:
-            return None
-        x = x_new
-        itr += 1
-
     return x, f(x), itr, log
-
-
-def chord_method(a, b, f, e, maxitr=100):
-    """ Метод хорд с оптимизациями """
-    log = [['a', 'b', 'x', 'f(a)', 'f(b)', 'f(x)', '|x - x0|']]
-
-    f_a = f(a)
-    f_b = f(b)
-
-    if f_a * get_derivative(2, a, f) < 0:
-        x = a
-        fix_x = b
-    elif f_b * get_derivative(2, a, f) < 0:
-        x = b
-        fix_x = a
-    else:
-        x = a - (b - a) / (f_b - f_a) * f_a
-        fix_x = None
-
-    x0 = x + 2 * e
-    log.append([a, b, x, f_a, f_b, f(x), abs(x - x0)])
-
-    itr = 0
-    while abs(x - x0) > e and itr < maxitr:
-        f_x = f(x)
-        if fix_x is None:
-            if f_a * f_x < 0:
-                b = x
-                f_b = f_x
-            else:
-                a = x
-                f_a = f_x
-        else:
-            if fix_x == a:
-                x = x - (fix_x - x) / (f(fix_x) - f_x) * f_x
-                f_x = f(x)
-            else:
-                x = x - (x - fix_x) / (f_x - f(fix_x)) * f_x
-                f_x = f(x)
-
-        log.append([a, b, x, f_a, f_b, f_x, abs(x - x0)])
-
-        x0 = x
-        itr += 1
-
-    if itr == maxitr:
-        raise Exception("Достигнуто максимальное количество итераций без сходимости!")
-
-    return x, f(x), itr, log
-
-
-def secant_method(a, b, f, e, maxitr=100):
-    """Метод секущих для нахождения корня функции."""
-    log = [['x0', 'f(x0)', 'x', 'f(x)', 'x1', 'f(x1)', '|x - x1|']]
-
-    f_a = f(a)
-    f_b = f(b)
-
-    if f_a * get_derivative(2, a, f) > 0:
-        x0 = a
-        f_x0 = f_a
-    elif f_b * get_derivative(2, a, f) > 0:
-        x0 = b
-        f_x0 = f_b
-    else:
-        return None
-
-    x1 = x0 + e
-    f_x1 = f(x1)
-    x = x1 + 2 * e
-    itr = 0
-
-    while abs(x - x1) > e and itr < maxitr:
-        if f_x1 == f_x0:
-            raise ValueError("Значения функции равны, возможно, необходимо пересмотреть начальные точки!")
-
-        x_new = x1 - (x1 - x0) * f_x1 / (f_x1 - f_x0)
-        f_x_new = f(x_new)
-
-        log.append([x0, f_x0, x, f(x), x1, f_x1, abs(x_new - x1)])
-
-        x0, f_x0 = x1, f_x1
-        x1, f_x1 = x_new, f_x_new
-        x = x1
-        itr += 1
-
-    if itr == maxitr:
-        raise Exception("Достигнуто максимальное количество итераций без сходимости!")
-
-    return x1, f_x1, itr, log
 
 
 def plot(x, y):
@@ -162,7 +62,7 @@ def plot(x, y):
     plt.show(block=False)
 
 
-def get_func(function_num):
+def get_function(function_num):
     """ Получить выбранную функцию. """
     functions = {
         '1': (np.linspace(-1, 3, 200), lambda x: x ** 3 - 2.92 * (x ** 2) + 1.435 * x + 0.791),
@@ -186,7 +86,7 @@ def get_data_file():
     with open(FILE_PATH, 'rt') as fin:
         try:
             data = {}
-            function_data = get_func(fin.readline().strip())
+            function_data = get_function(fin.readline().strip())
             if function_data is None:
                 raise ValueError("Функция не распознана!")
             x, function = function_data
@@ -225,7 +125,7 @@ def select_function():
     print(" 3 - sin(x) + 0.1")
 
     while True:
-        function_data = get_func(input("Функция: "))
+        function_data = get_function(input("Функция: "))
         if function_data is not None:
             return function_data
         print("Выберите функцию из списка.")
@@ -305,8 +205,7 @@ def get_data_console():
 
 
 def main():
-    print("\t\tЛабораторная работа #2 (19)")
-    print("Численное решение нелинейных уравнений")
+    print("\t\tЧисленное решение нелинейных уравнений")
 
     print("\nВзять исходные данные из файла (+) или ввести с клавиатуры (-)?")
     input_choice = input("Режим ввода: ")
